@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+  <title>Ember Mine</title>
+  <style>
+    *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#11101b;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+    #game{position:fixed;inset:0;padding:max(env(safe-area-inset-top),var(--host-top,0px)) max(env(safe-area-inset-right),var(--host-right,0px)) max(env(safe-area-inset-bottom),var(--host-bottom,0px)) max(env(safe-area-inset-left),var(--host-left,0px))}
+    canvas{display:block;width:100%;height:100%;touch-action:none;outline:none}
+    #loading{position:fixed;inset:0;display:grid;place-content:center;gap:20px;text-align:center;color:#ffe0a0;font:700 24px system-ui;background:radial-gradient(ellipse at center,#35243a,#11101b)}
+    progress{width:min(280px,75vw);height:12px;accent-color:#ffb72b}
+    #error{max-width:500px;font:16px system-ui;color:#eee;white-space:pre-wrap}
+    button{padding:12px 24px;background:#087bd3;color:white;border:0;border-radius:8px;font:700 17px system-ui;cursor:pointer}
+  </style>
+</head>
+<body>
+  <div id="game"><canvas id="unity-canvas" tabindex="0" aria-label="Ember Mine game"></canvas></div>
+  <div id="loading"><div>EMBER MINE</div><progress id="progress" max="1" value="0"></progress><div id="error" hidden></div><button id="retry" hidden>Повторить</button></div>
+  <script src="Platform/vk-bridge.min.js"></script>
+  <script src="Platform/social-platform.js"></script>
+  <script src="Build/cee3bfd5589651a8b16e2a12b8abe5b3.loader.js"></script>
+  <script>
+    const canvas=document.getElementById('unity-canvas');
+    canvas.addEventListener('contextmenu',e=>e.preventDefault());
+    document.getElementById('retry').onclick=()=>location.reload();
+    emberPlatform.initialize().then(()=>createUnityInstance(canvas,{
+      dataUrl:"Build/3e966ab5cf656a9c6656f27a6327422f.data.unityweb",
+      frameworkUrl:"Build/f5b3ada98686f1576205384a3d01b41e.framework.js.unityweb",
+      codeUrl:"Build/9c15c09eb42f7351f154a6edb6517254.wasm.unityweb",
+      streamingAssetsUrl:"StreamingAssets",
+      companyName:"Ember Studio",
+      productName:"Ember Mine",
+      productVersion:"1.1.0",
+      showBanner:(message,type)=>{if(type==='error')console.error(message)}
+    },p=>document.getElementById('progress').value=p)).then(instance=>{
+      window.emberMineInstance=instance;
+      document.getElementById('loading').remove();
+      emberPlatform.attach(instance);
+      canvas.focus();
+    }).catch(error=>{
+      document.getElementById('error').hidden=false;
+      document.getElementById('error').textContent='Не удалось запустить игру. Проверьте соединение и нажмите «Повторить».';
+      document.getElementById('retry').hidden=false;
+      console.error(error);
+    });
+  </script>
+</body>
+</html>
+
